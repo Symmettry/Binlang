@@ -48,3 +48,6 @@ You cannot use arr[index;] in an operation, and must assign it to a variable fir
 #set arr = [0; 1; a; b; c;];
 #set valA = arr[0;];
 ```
+
+## Examples
+You can view examples in the `/examples/` folder.
