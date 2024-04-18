@@ -19,12 +19,14 @@ public class Environment {
         env.declareVariable("#pnc", new RuntimeVal.NativeFuncValue((args) -> {
             final List<RuntimeVal.ArrayValue> characterArray = RuntimeVal.expect(args[0], RuntimeVal.ArrayValue.class)
                     .values().stream().map((val) -> RuntimeVal.expect(val, RuntimeVal.ArrayValue.class)).toList();
+            final StringBuilder sb = new StringBuilder();
             characterArray.forEach((arrayValue -> {
                 final List<String> byteArray = arrayValue.values().stream()
                         .map((val) -> RuntimeVal.expect(val, RuntimeVal.IntValue.class).toString()).toList();
                 final int binaryCharacter = Integer.parseInt(String.join("", byteArray), 2);
-                System.out.print((char)(binaryCharacter));
+                sb.append((char)(binaryCharacter));
             }));
+            System.out.print(sb);
             return RuntimeVal.zero();
         }));
 

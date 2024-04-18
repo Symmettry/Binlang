@@ -1,6 +1,8 @@
 package dev;
 
 public class Timer {
+    public static boolean enabled = false;
+
     private final double startTime;
     private final String name;
     public Timer(final String name) {
@@ -9,6 +11,7 @@ public class Timer {
     }
     @SuppressWarnings("preview")
     public void end() {
+        if(!enabled) return;
         System.out.println(STR."\{name} took \{(System.nanoTime() - startTime) / 1000000}ms.");
     }
 }

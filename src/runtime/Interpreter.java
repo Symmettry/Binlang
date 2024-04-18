@@ -1,5 +1,6 @@
 package runtime;
 
+import dev.Timer;
 import parser.AST;
 
 import java.util.List;
@@ -79,11 +80,12 @@ public class Interpreter {
         return lastEval;
     }
 
-
     private static RuntimeVal eval_program(final AST.Program program, final Environment env) {
-        final RuntimeVal eval = eval_list(program.body(), env);
-        //System.out.println(STR."\n\{env}");
-        return eval;
+        final Timer timer = new Timer("Interpreter");
+        final RuntimeVal res = eval_list(program.body(), env);
+        System.out.println();
+        timer.end();
+        return res;
     }
 
 }
