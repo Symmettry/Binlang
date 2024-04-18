@@ -82,7 +82,7 @@ public class Interpreter {
 
     private static RuntimeVal eval_program(final AST.Program program, final Environment env) {
         final RuntimeVal eval = eval_list(program.body(), env);
-        System.out.println(env);
+        System.out.println(STR."\n\{env}");
         return eval;
     }
 

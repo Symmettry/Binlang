@@ -1,6 +1,7 @@
 package runtime;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class Environment {
 
@@ -13,6 +14,17 @@ public class Environment {
         }));
         env.declareVariable("#pnl", new RuntimeVal.NativeFuncValue((args) -> {
             System.out.println(args[0]);
+            return RuntimeVal.zero();
+        }));
+        env.declareVariable("#pnc", new RuntimeVal.NativeFuncValue((args) -> {
+            final List<RuntimeVal.ArrayValue> characterArray = RuntimeVal.expect(args[0], RuntimeVal.ArrayValue.class)
+                    .values().stream().map((val) -> RuntimeVal.expect(val, RuntimeVal.ArrayValue.class)).toList();
+            characterArray.forEach((arrayValue -> {
+                final List<String> byteArray = arrayValue.values().stream()
+                        .map((val) -> RuntimeVal.expect(val, RuntimeVal.IntValue.class).toString()).toList();
+                final int binaryCharacter = Integer.parseInt(String.join("", byteArray), 2);
+                System.out.print((char)(binaryCharacter));
+            }));
             return RuntimeVal.zero();
         }));
 

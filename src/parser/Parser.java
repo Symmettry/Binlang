@@ -76,13 +76,13 @@ public class Parser {
     }
 
     private AST.Stmt parse_call() {
-         AST.Stmt val1 = this.at().type == Lexer.TokenType.NUMBER ? this.numerate() : identify(Objects.requireNonNull(this.eat()).value);
+         final AST.Stmt val1 = this.at().type == Lexer.TokenType.NUMBER ? this.numerate() : identify(Objects.requireNonNull(this.eat()).value);
          if (val1.type() == AST.NodeType.IDENTIFIER && this.at().type == Lexer.TokenType.OPEN_ARR) { // a[]
             this.eat(); // eat [
             final AST.Stmt value = this.parse_stmt();
             this.eat(); // eat ]
             assert val1 instanceof AST.Identifier; // fuck you intellij :heart:
-            val1 = new AST.MemberExpr((AST.Identifier) val1, value);
+            return new AST.MemberExpr((AST.Identifier) val1, value);
         }
         if(this.at().type == Lexer.TokenType.SEMICOLON) { // a;
             this.eat(); // eat semicolon

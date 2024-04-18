@@ -97,6 +97,14 @@ public class Lexer {
                     shift(); // shift #
                     tokens.add(token(STR."#\{lexIdent()}", TokenType.MIDENT));
                 }
+                case '/' -> {
+                    // comments
+                    if(this.chars.length <= 1 || this.chars[1] != '/') throw new IllegalArgumentException(STR."Unexpected character found: \{c.toString()}");
+
+                    while(this.chars.length > 0 && this.chars[0] != '\n') {
+                        shift();
+                    }
+                }
                 default -> {
                     if (!tokenMap.containsKey(c)) throw new IllegalArgumentException(STR."Unexpected character found: \{c.toString()}");
                     tokens.add(token(c.toString(), tokenMap.get(c)));
