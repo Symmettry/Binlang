@@ -5,7 +5,7 @@ A project inspired by [Sebastian Lague's video](https://www.youtube.com/watch?v=
 
 ## How To Run
 If you're in IntelliJ, make a configuration with arguments as `C:/path/to/file.bin`\
-If you compile the jar, it's `java -jar C:/path/to/file.jar C:/path/to/file.bin`
+If you use a jar it's `java -jar --enable-preview C:/path/to/Binlang.jar C:/path/to/file.bin`
 
 ## Syntax
 
