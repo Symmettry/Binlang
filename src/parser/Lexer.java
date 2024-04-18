@@ -56,8 +56,7 @@ public class Lexer {
     private String lexIdent() {
         final StringBuilder sb = new StringBuilder();
         while(this.chars.length > currentIndex && this.isAlpha(this.chars[currentIndex])) {
-            sb.append(this.chars[currentIndex]);
-            shift();
+            sb.append(shift());
         }
         return sb.toString();
     }

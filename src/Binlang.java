@@ -12,6 +12,10 @@ void main(String... args) throws IOException {
     Timer.enabled = args.length > 1 && Objects.equals(args[1], "--dev");
     final String content = new String(Files.readAllBytes(Paths.get(args[0])));
 
+    final Timer timer = new Timer("Binlang Execution");
+
     final Parser parser = new Parser();
     Interpreter.evaluate(parser.produceAST(content), Environment.createGlobalEnv());
+
+    timer.end();
 }
