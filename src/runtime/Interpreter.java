@@ -4,7 +4,6 @@ import dev.Timer;
 import parser.AST;
 
 import java.util.List;
-import java.util.Objects;
 
 @SuppressWarnings("preview")
 public class Interpreter {

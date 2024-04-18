@@ -87,9 +87,7 @@ public class Lexer {
                 case final Character d when isAlpha(d) -> tokens.add(token(this.lexIdent(), TokenType.IDENT));
                 case final Character d when isSkippable(d) -> this.shift();*/
 
-                case '#' -> {
-                    tokens.add(token(shift() + this.lexIdent(), TokenType.MIDENT));
-                }
+                case '#' -> tokens.add(token(shift() + this.lexIdent(), TokenType.MIDENT));
                 case '/' -> {
                     // comments
                     if(this.chars.length - currentIndex == 1 || this.chars[currentIndex + 1] != '/') throw new IllegalArgumentException(STR."Unexpected character found: \{c}");

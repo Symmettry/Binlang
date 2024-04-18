@@ -30,7 +30,7 @@ The symbol can take in 1 or 2 arguments with syntax `#def symbol a {}` and `#def
 ```
 #prn 0;
 #pnl 1;
-#pnc [[1;0;0;1;0;0;0;][1;1;0;1;0;0;1;]]; // Hi
+#pnc [[1;0;0;1;0;0;0;][1;1;0;1;0;0;1;]] // Hi
 ```
 `#set` will set a variable. Variables must be all alphabetical.
 ```
@@ -50,8 +50,9 @@ Arrays can be formed with square brackets.\
 A semicolon must separate all values (excluding arrays), and this includes the last one.\
 You can get values from an array with arr[index;] -- this is the exception in which you can use numbers above 1.\
 You cannot use arr[index;] in an operation, and must assign it to a variable first.\
+Note: You shouldn't place a semicolon after an array.
 ```
-#set arr = [0;1;a;b;c;];
+#set arr = [0;1;a;b;c;]
 #set valA = arr[0;]; // 0
 ```
 

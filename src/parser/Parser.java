@@ -62,16 +62,14 @@ public class Parser {
     private AST.Stmt parse_stmt() {
         return switch(this.at().type) {
             case NUMBER, IDENT -> this.parse_call();
+            case SEMICOLON -> null;
             case OPEN_ARR -> this.parse_array();
             case MIDENT -> switch(this.at().value) {
                 case "#set" -> this.parse_set();
                 case "#def" -> this.parse_def();
                 default -> new AST.MIdentCall(identify(Objects.requireNonNull(this.eat()).value), this.parse_stmt());
             };
-            default -> {
-                this.eat();
-                yield null;
-            }
+            default -> throw new IllegalArgumentException(STR."Unknown value: \{this.at().value}");
         };
     }
 
@@ -86,13 +84,14 @@ public class Parser {
         return new AST.Array(body);
     }
 
+    // please someone tell me what the fuck (AST.Identifer) can be suppressed with because "cast" does not work
+    @SuppressWarnings("all")
     private AST.Stmt parse_call() {
          final AST.Stmt val1 = this.at().type == Lexer.TokenType.NUMBER ? this.numerate() : identify(Objects.requireNonNull(this.eat()).value);
          if (val1.type() == AST.NodeType.IDENTIFIER && this.at().type == Lexer.TokenType.OPEN_ARR) { // a[]
             this.eat(); // eat [
             final AST.Stmt value = this.parse_stmt();
             this.eat(); // eat ]
-            assert val1 instanceof AST.Identifier; // fuck you intellij :heart:
             return new AST.MemberExpr((AST.Identifier) val1, value);
         }
         if(this.at().type == Lexer.TokenType.SEMICOLON || this.at().type == Lexer.TokenType.CLOSE_ARR) { // a; a]
