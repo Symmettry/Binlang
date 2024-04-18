@@ -1,5 +1,7 @@
 package parser;
 
+import dev.Timer;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -8,18 +10,17 @@ import java.util.Objects;
 public class Parser {
 
     private List<Lexer.Token> tokens;
+    private int currentIndex = 0;
 
     private Lexer.Token eat() {
-        if(this.tokens.isEmpty()) return null;
-        final Lexer.Token temp = this.tokens.getFirst();
-        this.tokens = this.tokens.stream().skip(1).toList();
+        if(this.currentIndex > this.tokens.size()) return null;
+        final Lexer.Token temp = this.tokens.get(currentIndex);
+        this.tokens.set(currentIndex, null);
+        currentIndex++;
         return temp;
     }
     private Lexer.Token at() {
-        return this.tokens.isEmpty() ? new Lexer.Token(Lexer.TokenType.SEMICOLON, ";") : this.tokens.getFirst();
-    }
-    private Lexer.Token at(int offset) {
-        return this.tokens.size() < offset ? new Lexer.Token(Lexer.TokenType.SEMICOLON, ";") : this.tokens.get(offset);
+        return this.currentIndex > this.tokens.size() ? new Lexer.Token(Lexer.TokenType.SEMICOLON, ";") : this.tokens.get(currentIndex);
     }
     @SuppressWarnings("preview")
     private Lexer.Token expect(final Lexer.TokenType type, final String error) {
@@ -37,26 +38,36 @@ public class Parser {
     }
 
     public AST.Program produceAST(String sourceCode) {
+        final Timer lexerTimer = new Timer("Lexer");
+
         final Lexer lexer = new Lexer(sourceCode);
         this.tokens = lexer.tokenize();
 
+        lexerTimer.end();
+
+        final Timer parserTimer = new Timer("Parser");
+
         final List<AST.Stmt> body = new ArrayList<>();
-        while(!this.tokens.isEmpty()) {
+        while(this.currentIndex < this.tokens.size()) {
             body.add(this.parse_stmt());
         }
+
+        parserTimer.end();
+
+        System.out.println();
 
         return new AST.Program(body);
     }
 
     private AST.Stmt parse_stmt() {
         return switch(this.at().type) {
+            case NUMBER, IDENT -> this.parse_call();
+            case OPEN_ARR -> this.parse_array();
             case MIDENT -> switch(this.at().value) {
                 case "#set" -> this.parse_set();
                 case "#def" -> this.parse_def();
                 default -> new AST.MIdentCall(identify(Objects.requireNonNull(this.eat()).value), this.parse_stmt());
             };
-            case NUMBER, IDENT -> this.parse_call();
-            case OPEN_ARR -> this.parse_array();
             default -> {
                 this.eat();
                 yield null;
@@ -68,7 +79,7 @@ public class Parser {
         this.eat(); // eat [
         final List<AST.Stmt> body = new ArrayList<>();
         while(this.at().type != Lexer.TokenType.CLOSE_ARR) {
-            if(this.tokens.isEmpty()) throw new IllegalArgumentException("Array does not end; expected closing square bracket.");
+            if(this.currentIndex > this.tokens.size()) throw new IllegalArgumentException("Array does not end; expected closing square bracket.");
             body.add(this.parse_stmt());
         }
         this.eat(); // eat ]
@@ -117,7 +128,7 @@ public class Parser {
 
         final List<AST.Stmt> body = new ArrayList<>();
         while(this.at().type != Lexer.TokenType.CLOSE_DEF) {
-            if(this.tokens.isEmpty()) throw new IllegalArgumentException("Defined operator does not end; expected closing curly bracket.");
+            if(this.currentIndex > this.tokens.size()) throw new IllegalArgumentException("Defined operator does not end; expected closing curly bracket.");
             body.add(this.parse_stmt());
         }
         this.eat(); // remove }

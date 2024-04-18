@@ -5,7 +5,7 @@ import java.util.*;
 @SuppressWarnings("preview")
 public class Lexer {
 
-    private Character[] chars;
+    private final Character[] chars;
 
     public enum TokenType {
         MIDENT, // #def, #prn, #set
@@ -38,10 +38,10 @@ public class Lexer {
         }
     }
 
-    private Character shift() {
-        final char temp = this.chars[0];
-        this.chars = Arrays.stream(this.chars).skip(1).toArray(Character[]::new);
-        return temp;
+    private int currentIndex = 0;
+
+    private void shift() {
+        this.currentIndex++;
     }
     private boolean isAlpha(final char c) {
         return ((Character) c).toString().matches("[a-zA-Z_]+");
@@ -54,8 +54,8 @@ public class Lexer {
     }
     private String lexIdent() {
         final StringBuilder sb = new StringBuilder();
-        while(this.chars.length > 0 && this.isAlpha(this.chars[0])) {
-            sb.append(this.chars[0]);
+        while(this.chars.length > currentIndex && this.isAlpha(this.chars[currentIndex])) {
+            sb.append(this.chars[currentIndex]);
             shift();
         }
         return sb.toString();
@@ -78,13 +78,13 @@ public class Lexer {
     public List<Token> tokenize() {
         final List<Token> tokens = new ArrayList<>();
 
-        while(this.chars.length > 0) {
-            final Character c = this.chars[0];
+        while(this.chars.length > currentIndex) {
+            final Character c = this.chars[currentIndex];
 
             switch(c) {
                 case Character d when isNumber(d) -> {
                     shift();
-                    final int num = Integer.parseInt(d.toString());
+                    final int num = d - 48;
                     if(num == 0 || num == 1 || (tokens.size() > 1 &&
                             tokens.getLast().type == TokenType.OPEN_ARR &&
                             tokens.get(tokens.size() - 2).type == TokenType.IDENT)) {
@@ -99,9 +99,9 @@ public class Lexer {
                 }
                 case '/' -> {
                     // comments
-                    if(this.chars.length <= 1 || this.chars[1] != '/') throw new IllegalArgumentException(STR."Unexpected character found: \{c.toString()}");
+                    if(this.chars.length - currentIndex <= 1 || this.chars[currentIndex + 1] != '/') throw new IllegalArgumentException(STR."Unexpected character found: \{c.toString()}");
 
-                    while(this.chars.length > 0 && this.chars[0] != '\n') {
+                    while(this.chars.length > currentIndex && this.chars[currentIndex] != '\n') {
                         shift();
                     }
                 }
