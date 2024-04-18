@@ -13,14 +13,14 @@ public class Parser {
     private int currentIndex = 0;
 
     private Lexer.Token eat() {
-        if(this.currentIndex > this.tokens.size()) return null;
+        if(this.tokens.size() < currentIndex + 1) return new Lexer.Token(Lexer.TokenType.SEMICOLON, ";");
         final Lexer.Token temp = this.tokens.get(currentIndex);
         this.tokens.set(currentIndex, null);
         currentIndex++;
         return temp;
     }
     private Lexer.Token at() {
-        return this.currentIndex > this.tokens.size() ? new Lexer.Token(Lexer.TokenType.SEMICOLON, ";") : this.tokens.get(currentIndex);
+        return this.tokens.size() < currentIndex + 1 ? new Lexer.Token(Lexer.TokenType.SEMICOLON, ";") : this.tokens.get(currentIndex);
     }
     @SuppressWarnings("preview")
     private Lexer.Token expect(final Lexer.TokenType type, final String error) {
@@ -95,8 +95,7 @@ public class Parser {
             assert val1 instanceof AST.Identifier; // fuck you intellij :heart:
             return new AST.MemberExpr((AST.Identifier) val1, value);
         }
-        if(this.at().type == Lexer.TokenType.SEMICOLON) { // a;
-            this.eat(); // eat semicolon
+        if(this.at().type == Lexer.TokenType.SEMICOLON || this.at().type == Lexer.TokenType.CLOSE_ARR) { // a; a]
             return val1;
         }
 
