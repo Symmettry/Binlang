@@ -36,6 +36,9 @@ public class Parser {
     private AST.Number numerate() {
         return new AST.Number(Objects.requireNonNull(this.eat()).value);
     }
+    private AST.Stmt getNextNumValue() {
+        return this.at().type == Lexer.TokenType.NUMBER ? this.numerate() : identify(Objects.requireNonNull(this.eat()).value);
+    }
 
     public AST.Program produceAST(String sourceCode) {
         final Timer lexerTimer = new Timer("Lexer");
@@ -70,10 +73,26 @@ public class Parser {
             case MIDENT -> switch(this.at().value) {
                 case "#set" -> this.parse_set();
                 case "#def" -> this.parse_def();
+                case "#con" -> this.parse_con();
                 default -> new AST.MIdentCall(identify(Objects.requireNonNull(this.eat()).value), this.parse_stmt());
             };
             default -> throw new IllegalArgumentException(STR."Unknown value: \{this.at().value}");
         };
+    }
+
+    private AST.Con parse_con() {
+        this.eat(); // eat #con
+        final AST.Stmt number = this.getNextNumValue();
+        this.expect(Lexer.TokenType.OPEN_CBRACE, "Expected { following number in #con operation.");
+
+        final List<AST.Stmt> body = new ArrayList<>();
+        while(this.at().type != Lexer.TokenType.CLOSE_CBRACE) {
+            if(this.currentIndex > this.tokens.size()) throw new IllegalArgumentException("Conditional operator does not end; expected closing curly bracket.");
+            body.add(this.parse_stmt());
+        }
+        this.eat(); // remove }
+
+        return new AST.Con(number, body);
     }
 
     private AST.Array parse_array() {
@@ -90,7 +109,7 @@ public class Parser {
     // please someone tell me what the fuck (AST.Identifer) can be suppressed with because "cast" does not work
     @SuppressWarnings("all")
     private AST.Stmt parse_call() {
-         final AST.Stmt val1 = this.at().type == Lexer.TokenType.NUMBER ? this.numerate() : identify(Objects.requireNonNull(this.eat()).value);
+         final AST.Stmt val1 = this.getNextNumValue();
          if (val1.type() == AST.NodeType.IDENTIFIER && this.at().type == Lexer.TokenType.OPEN_ARR) { // a[]
             this.eat(); // eat [
             final AST.Stmt value = this.parse_stmt();
@@ -126,10 +145,10 @@ public class Parser {
             args.add(identify(this.expect(Lexer.TokenType.IDENT, "Expected argument following separator in #def operation.").value)); // e.g. #def nand a, b
         }
 
-        this.expect(Lexer.TokenType.OPEN_DEF, "Expected opening curly bracket after arguments in #def operation."); // remove {
+        this.expect(Lexer.TokenType.OPEN_CBRACE, "Expected opening curly bracket after arguments in #def operation."); // remove {
 
         final List<AST.Stmt> body = new ArrayList<>();
-        while(this.at().type != Lexer.TokenType.CLOSE_DEF) {
+        while(this.at().type != Lexer.TokenType.CLOSE_CBRACE) {
             if(this.currentIndex > this.tokens.size()) throw new IllegalArgumentException("Defined operator does not end; expected closing curly bracket.");
             body.add(this.parse_stmt());
         }

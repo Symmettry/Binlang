@@ -4,6 +4,7 @@ import dev.Timer;
 import parser.AST;
 
 import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings("preview")
 public class Interpreter {
@@ -14,6 +15,7 @@ public class Interpreter {
             case IDENTIFIER -> eval_identifier((AST.Identifier) stmt, env);
             case PROGRAM -> eval_program((AST.Program) stmt, env);
             case DEF -> eval_def((AST.Def) stmt, env);
+            case CON -> eval_con((AST.Con) stmt, env);
             case NUMBER -> eval_number((AST.Number) stmt);
             case ASSIGNMENT -> eval_assignment((AST.Assignment) stmt, env);
             case CALL -> eval_call((AST.Call) stmt, env);
@@ -22,6 +24,20 @@ public class Interpreter {
             case MEMBEREXPR -> eval_memberexpr((AST.MemberExpr) stmt, env);
             default -> RuntimeVal.zero();
         };
+    }
+
+    private static RuntimeVal eval_con(final AST.Con con, final Environment env) {
+        final AST.Stmt number = con.number();
+        int n;
+        if(number.type() == AST.NodeType.NUMBER) {
+            n = Objects.equals(((AST.Number) number).value(), "0") ? 0 : 1;
+        } else {
+            n = RuntimeVal.expect(eval_identifier((AST.Identifier) number, env), RuntimeVal.IntValue.class).value();
+        }
+        if(n == 1) {
+            return eval_list(con.body(), new Environment(env));
+        }
+        return RuntimeVal.zero();
     }
 
     private static RuntimeVal eval_memberexpr(final AST.MemberExpr expr, final Environment env) {
@@ -42,11 +58,16 @@ public class Interpreter {
         final RuntimeVal n1 = evaluate(call.n1(), env), n2 = evaluate(call.n2(), env);
         return switch(callIdent.type()) {
             case FUNC -> {
-                final RuntimeVal.FuncValue func = (RuntimeVal.FuncValue) callIdent;
-                final Environment newEnv = new Environment(func.parentEnv());
-                newEnv.declareVariable(func.args().getFirst().ident(), n1);
-                if(func.args().size() > 1) newEnv.declareVariable(func.args().get(1).ident(), n2);
-                yield eval_list(func.body(), newEnv);
+                try {
+                    final RuntimeVal.FuncValue func = (RuntimeVal.FuncValue) callIdent;
+                    final Environment newEnv = new Environment(func.parentEnv());
+                    newEnv.declareVariable(func.args().getFirst().ident(), n1);
+                    if (func.args().size() > 1) newEnv.declareVariable(func.args().get(1).ident(), n2);
+                    yield eval_list(func.body(), newEnv);
+                } catch (StackOverflowError e) {
+                    System.out.println("<StackOverflowError>");
+                    yield RuntimeVal.zero();
+                }
             }
             case NATIVE_FUNC -> ((RuntimeVal.NativeFuncValue) callIdent).value().apply(new RuntimeVal[]{n1, n2});
             default -> throw new RuntimeException(STR."Unknown call type: \{callIdent.type()}");

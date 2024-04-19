@@ -83,25 +83,15 @@
     #set four_bit_input = [valA; valB; valC; valD; valE; valF; valG; valH; subtract;]
     #set four_bit_output = four_bit_input four_bit_adder;
 
-    #set negativeEight = four_bit_output[0;]
+    #set valA = four_bit_output[0;]
     #set valB = four_bit_output[1;]
     #set valC = four_bit_output[2;]
     #set valD = four_bit_output[3;]
 
     #set carry = four_bit_output[4;]
 
-    #set notVA = negativeEight not;
-    #set notVB = valB not;
-    #set notVC = valC not;
-    #set notVD = valD not;
-
-    #set andA = notVA and notVB;
-    #set andB = andA and notVC;
-    #set isZero = andB and notVD;
-
     [
-        negativeEight; valB; valC; valD;
-        carry; negativeEight; isZero;
+        valA; valB; valC; valD;
     ]
 
 }

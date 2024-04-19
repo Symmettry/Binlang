@@ -11,8 +11,8 @@ public class Lexer {
         MIDENT, // #def, #prn, #set
         IDENT, // and, not, anything at all lmao
 
-        OPEN_DEF, // {
-        CLOSE_DEF, // }
+        OPEN_CBRACE, // {
+        CLOSE_CBRACE, // }
 
         OPEN_ARR, // [
         CLOSE_ARR, // ]
@@ -66,8 +66,8 @@ public class Lexer {
     static {
         tokenMap[','] = TokenType.SEPARATE;
         tokenMap['='] = TokenType.ASSIGN;
-        tokenMap['{'] = TokenType.OPEN_DEF;
-        tokenMap['}'] = TokenType.CLOSE_DEF;
+        tokenMap['{'] = TokenType.OPEN_CBRACE;
+        tokenMap['}'] = TokenType.CLOSE_CBRACE;
         tokenMap['['] = TokenType.OPEN_ARR;
         tokenMap[']'] = TokenType.CLOSE_ARR;
         tokenMap[';'] = TokenType.SEMICOLON;

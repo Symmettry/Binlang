@@ -10,6 +10,7 @@ public class AST {
         NUMBER,
         CALL,
         DEF,
+        CON,
         IDENTIFIER,
         MIDENTCALL,
         ARRAY,
@@ -74,6 +75,17 @@ public class AST {
         @Override
         public String toString() {
             return STR."{ type: \{type()}, name: \{name}, args: \{args}, body: \{body} }";
+        }
+    }
+
+    public record Con(Stmt number, List<Stmt> body) implements Stmt {
+        public NodeType type() {
+            return NodeType.CON;
+        }
+
+        @Override
+        public String toString() {
+            return STR."{ type: \{type()}, number: \{number}, body: \{body} }";
         }
     }
 
