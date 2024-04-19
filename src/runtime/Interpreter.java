@@ -28,7 +28,7 @@ public class Interpreter {
 
     private static RuntimeVal eval_con(final AST.Con con, final Environment env) {
         final AST.Stmt number = con.number();
-        int n;
+        final int n;
         if(number.type() == AST.NodeType.NUMBER) {
             n = Objects.equals(((AST.Number) number).value(), "0") ? 0 : 1;
         } else {
