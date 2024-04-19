@@ -45,7 +45,7 @@ public class AST {
         }
     }
 
-    public record Number(String value) implements Stmt {
+    public record Number(char value) implements Stmt {
         public NodeType type() {
             return NodeType.NUMBER;
         }

@@ -89,7 +89,7 @@ public class Interpreter {
     }
 
     private static RuntimeVal.IntValue eval_number(final AST.Number number) {
-        return new RuntimeVal.IntValue(Integer.parseInt(number.value())); // 0 and 1 are the only valid numbers
+        return new RuntimeVal.IntValue(Integer.parseInt(String.valueOf(number.value()))); // 0 and 1 are the only valid numbers
     }
 
     private static RuntimeVal eval_list(final List<AST.Stmt> body, final Environment env) {

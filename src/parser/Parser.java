@@ -30,11 +30,11 @@ public class Parser {
         return this.eat();
     }
 
-    private AST.Identifier identify(final String name) {
-        return new AST.Identifier(name);
+    private AST.Identifier identify(final Object name) {
+        return new AST.Identifier((String) name);
     }
     private AST.Number numerate() {
-        return new AST.Number(Objects.requireNonNull(this.eat()).value);
+        return new AST.Number((char) Objects.requireNonNull(this.eat()).value);
     }
     private AST.Stmt getNextNumValue() {
         return this.at().type == Lexer.TokenType.NUMBER ? this.numerate() : identify(Objects.requireNonNull(this.eat()).value);
@@ -70,7 +70,7 @@ public class Parser {
                 yield null;
             }
             case OPEN_ARR -> this.parse_array();
-            case MIDENT -> switch(this.at().value) {
+            case MIDENT -> switch(this.at().value.toString()) {
                 case "#set" -> this.parse_set();
                 case "#def" -> this.parse_def();
                 case "#con" -> this.parse_con();
@@ -135,7 +135,7 @@ public class Parser {
     private AST.Def parse_def() {
         this.eat(); // remove #def
 
-        final String name = this.expect(Lexer.TokenType.IDENT, "Expected identifier following #def operation.").value;
+        final Object name = this.expect(Lexer.TokenType.IDENT, "Expected identifier following #def operation.").value;
 
         final List<AST.Identifier> args = new ArrayList<>();
         args.add(identify(this.expect(Lexer.TokenType.IDENT, "Expected argument following identifier in #def operation.").value)); // first arg

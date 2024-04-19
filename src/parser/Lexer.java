@@ -25,9 +25,9 @@ public class Lexer {
     }
 
     public static class Token {
-        final String value;
+        final Object value;
         final TokenType type;
-        public Token(final TokenType type, final String value) {
+        public Token(final TokenType type, final Object value) {
             this.type = type;
             this.value = value;
         }
@@ -47,11 +47,8 @@ public class Lexer {
     private boolean isAlpha(final char c) {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
     }
-    private Token token(final String value, final TokenType type) {
+    private Token token(final Object value, final TokenType type) {
         return new Token(type, value);
-    }
-    private Token token(final char value, final TokenType type) {
-        return new Token(type, String.valueOf(value));
     }
     private String lexIdent() {
         final StringBuilder sb = new StringBuilder();
