@@ -62,7 +62,10 @@ public class Parser {
     private AST.Stmt parse_stmt() {
         return switch(this.at().type) {
             case NUMBER, IDENT -> this.parse_call();
-            case SEMICOLON -> null;
+            case SEMICOLON -> {
+                this.eat();
+                yield null;
+            }
             case OPEN_ARR -> this.parse_array();
             case MIDENT -> switch(this.at().value) {
                 case "#set" -> this.parse_set();
