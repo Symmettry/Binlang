@@ -13,14 +13,14 @@ public class Parser {
     private int currentIndex = 0;
 
     private Lexer.Token eat() {
-        if(this.currentIndex > this.tokens.size()) return null;
+        if(this.currentIndex >= this.tokens.size()) return null;
         final Lexer.Token temp = this.tokens.get(currentIndex);
         this.tokens.set(currentIndex, null);
         currentIndex++;
         return temp;
     }
     private Lexer.Token at() {
-        return this.currentIndex > this.tokens.size() ? new Lexer.Token(Lexer.TokenType.SEMICOLON, ";") : this.tokens.get(currentIndex);
+        return this.currentIndex >= this.tokens.size() ? new Lexer.Token(Lexer.TokenType.SEMICOLON, ";") : this.tokens.get(currentIndex);
     }
     @SuppressWarnings("preview")
     private Lexer.Token expect(final Lexer.TokenType type, final String error) {
@@ -80,19 +80,25 @@ public class Parser {
         };
     }
 
-    private AST.Con parse_con() {
-        this.eat(); // eat #con
-        final AST.Stmt number = this.getNextNumValue();
-        this.expect(Lexer.TokenType.OPEN_CBRACE, "Expected { following number in #con operation.");
-
+    private List<AST.Stmt> parse_scope() {
+        this.expect(Lexer.TokenType.OPEN_CBRACE, "Expected { following value in operation.");
         final List<AST.Stmt> body = new ArrayList<>();
         while(this.at().type != Lexer.TokenType.CLOSE_CBRACE) {
-            if(this.currentIndex > this.tokens.size()) throw new IllegalArgumentException("Conditional operator does not end; expected closing curly bracket.");
+            if(this.currentIndex > this.tokens.size()) throw new IllegalArgumentException("Opening curly brace does not end; expected closing curly bracket.");
             body.add(this.parse_stmt());
         }
         this.eat(); // remove }
+        return body;
+    }
 
-        return new AST.Con(number, body);
+    private AST.Con parse_con() {
+        this.eat(); // eat #con
+        final AST.Stmt number = this.getNextNumValue();
+
+        final List<AST.Stmt> body = this.parse_scope();
+        final List<AST.Stmt> elseBody = this.at().type == Lexer.TokenType.OPEN_CBRACE ? this.parse_scope() : null;
+
+        return new AST.Con(number, body, elseBody);
     }
 
     private AST.Array parse_array() {
@@ -145,14 +151,7 @@ public class Parser {
             args.add(identify(this.expect(Lexer.TokenType.IDENT, "Expected argument following separator in #def operation.").value)); // e.g. #def nand a, b
         }
 
-        this.expect(Lexer.TokenType.OPEN_CBRACE, "Expected opening curly bracket after arguments in #def operation."); // remove {
-
-        final List<AST.Stmt> body = new ArrayList<>();
-        while(this.at().type != Lexer.TokenType.CLOSE_CBRACE) {
-            if(this.currentIndex > this.tokens.size()) throw new IllegalArgumentException("Defined operator does not end; expected closing curly bracket.");
-            body.add(this.parse_stmt());
-        }
-        this.eat(); // remove }
+        final List<AST.Stmt> body = this.parse_scope();
 
         return new AST.Def(identify(name), args, body);
     }

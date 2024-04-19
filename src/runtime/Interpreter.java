@@ -30,12 +30,14 @@ public class Interpreter {
         final AST.Stmt number = con.number();
         final int n;
         if(number.type() == AST.NodeType.NUMBER) {
-            n = Objects.equals(((AST.Number) number).value(), "0") ? 0 : 1;
+            n = Objects.equals(((AST.Number) number).value(), '0') ? 0 : 1;
         } else {
             n = RuntimeVal.expect(eval_identifier((AST.Identifier) number, env), RuntimeVal.IntValue.class).value();
         }
         if(n == 1) {
             return eval_list(con.body(), new Environment(env));
+        } else if (con.elseBody() != null) {
+            return eval_list(con.elseBody(), new Environment(env));
         }
         return RuntimeVal.zero();
     }
