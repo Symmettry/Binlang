@@ -78,14 +78,14 @@ public class AST {
         }
     }
 
-    public record Con(Stmt number, List<Stmt> body) implements Stmt {
+    public record Con(Stmt number, List<Stmt> body, List<Stmt> elseBody) implements Stmt {
         public NodeType type() {
             return NodeType.CON;
         }
 
         @Override
         public String toString() {
-            return STR."{ type: \{type()}, number: \{number}, body: \{body} }";
+            return STR."{ type: \{type()}, number: \{number}, body: \{body}, elseBody: \{elseBody} }";
         }
     }
 
