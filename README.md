@@ -36,6 +36,15 @@ The symbol can take in 1 or 2 arguments with syntax `#def symbol a {}` and `#def
 ```
 #set a = 0;
 ```
+`#con` will check if a number is 1.
+```
+#set a = 1;
+#con a {
+    #pnc [[1;1;1;1;0;0;1;][1;1;0;0;1;0;1;][1;1;1;0;0;1;1;]]; // yes
+} {
+    #pnc [[1;1;0;1;1;1;0;][1;1;0;1;1;1;1;]] // no
+}
+```
 ### Values
 
 #### Numbers
